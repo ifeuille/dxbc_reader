@@ -275,8 +275,13 @@ m.shader_def = {
         local n_dest = get_var_name(dest)
         local n_addr, com_addr = get_var_name(addr, nil, true)
         local n_texture, com_texture = get_var_name(texture, dest, true)
-        return _format('%s = tex2D(%s, %s.%s).%s //ld_indexable',
-                    n_dest, n_texture, n_addr, com_addr:sub(1, 2), com_texture)
+        if com_addr == nil or n_addr == nil then
+            return _format('%s = tex2D(%s, %s).%s //ld_indexable',
+            n_dest, n_texture, addr, com_texture)
+        else
+            return _format('%s = tex2D(%s, %s.%s).%s //ld_indexable',
+            n_dest, n_texture, n_addr, com_addr:sub(1, 2), com_texture)
+        end
     end,
     ['ld_structured.*'] = function(op_args, dest, addr, offset, texture)
         -- load buffer data
@@ -517,6 +522,28 @@ m.shader_def = {
     ['vs_%d_%d'] = false,
     ['ps_%d_%d'] = false,
     ['dcl_.*'] = false,
+    --for sm5
+    ['cs_%d_%d'] = false,
+    bfi = function(op_args, width, offset, src2, src3)
+        return _format([[
+            bitmask = (((1 << %s)-1) << %s) & 0xffffffff
+            dest = ((%s << %s) & bitmask) | (%s & ~bitmask)]], width, offset, src2, offset, src3)
+    end,
+    bfrev = function(op_args, dest, src)
+        return _format('%s = reverse_bit(%s) ', dest, src)
+    end,
+    countbits = function(op_args, dest, src)
+        return _format('%s = countbits(%s)', dest, src)
+    end,
+    store_structured=function(op_args,dst0, dstAddress,dstByteOffset,src0)
+        return _format('%s[dstAddress+dstByteOffset]= %s',dst0, dstAddress,dstByteOffset,src0)
+    end,
+    sync_g_t=function()
+        return "sync"
+    end,
+    store_uav_typed=function(op_args,dstUAV, dstAddress,src0)
+        return _format('%s[dstAddress]= %s',dst0, dstAddress,src0)
+    end,
 }
 
 -- sm5

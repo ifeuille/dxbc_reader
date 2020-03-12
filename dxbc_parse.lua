@@ -183,6 +183,9 @@ local function process_input(list, start_idx, end_idx)
     local data = {}
     for i=start_idx, end_idx do
         local tokens = split(list[i])
+        if string.find(tokens[1],"no") ~= nil then
+            return
+        end
         data[#data+1] = {
             name = tokens[1],
             bind = 'v' .. tokens[4],
@@ -197,6 +200,9 @@ local function process_output(list, start_idx, end_idx)
     local data = {}
     for i=start_idx, end_idx do
         local tokens = split(list[i])
+        if string.find(tokens[1],"no") ~= nil then
+            return
+        end
         data[#data+1] = {
             name = tokens[1],
             bind = 'o' .. tokens[4],
