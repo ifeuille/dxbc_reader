@@ -536,13 +536,20 @@ m.shader_def = {
         return _format('%s = countbits(%s)', dest, src)
     end,
     store_structured=function(op_args,dst0, dstAddress,dstByteOffset,src0)
-        return _format('%s[dstAddress+dstByteOffset]= %s',dst0, dstAddress,dstByteOffset,src0)
+        local namea = get_var_name(dst0)
+        local nameb = get_var_name(dstAddress)
+        local namec = get_var_name(dstByteOffset)
+        local named = get_var_name(src0)
+        return _format('%s[%s+%s]= %s',namea,nameb,namec,named)
     end,
     sync_g_t=function()
         return "sync"
     end,
     store_uav_typed=function(op_args,dstUAV, dstAddress,src0)
-        return _format('%s[dstAddress]= %s',dst0, dstAddress,src0)
+        local namea = get_var_name(dstUAV)
+        local nameb = get_var_name(dstAddress)
+        local named = get_var_name(src0)
+        return _format('%s[%s]= %s',namea,nameb,named)
     end,
 }
 
